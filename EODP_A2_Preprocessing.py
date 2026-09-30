@@ -1,6 +1,6 @@
 import pandas as pd, numpy as np
 
-df = pd.read_csv('data/listings.csv', low_memory=False)   # Raw Inside Airbnb file (Amendment #1)
+df = pd.read_csv('data/listingsA2.csv', low_memory=False)   # Raw Inside Airbnb file (Amendment #1)
 
 # Baseline: price -> numeric (needed before any price analysis)
 def parse_price_correct(price):
