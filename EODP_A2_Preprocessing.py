@@ -103,3 +103,11 @@ property_type_df['number_of_listings'] = df.groupby('property_group').size()
 property_type_df['median_price'] = df.groupby('property_group')['price'].median()
 property_type_df.index.name = None
 print(property_type_df)
+
+
+# ---- Refresh rated subset ----
+# df_rating was created in Step 1, before Steps 2-3 added 'distance_from_cbd_km',
+# 'cbd_band' and 'property_group'. Rebuild it so the rated subset has every engineered column.
+df_rating = df[df['is_reviewed']].copy()
+print("rating subset rows:", len(df_rating), "| has new columns:",
+      {'distance_from_cbd_km', 'cbd_band', 'property_group'}.issubset(df_rating.columns))
