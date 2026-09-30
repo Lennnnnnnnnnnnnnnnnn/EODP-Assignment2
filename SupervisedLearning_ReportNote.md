@@ -127,18 +127,37 @@ rather than re-deriving.
 
 ## 4. Result worth flagging early
 
-The price~rating relationship is **very weak**: Spearman 0.0921 on the rated subset. Price and
-distance from the CBD are similarly weak at -0.0484. Median price by CBD band is also
-non-monotonic (inner $253.00, middle $219.50, outer $247.50), which is probably coastal and
-peninsula holiday rentals sitting in the "outer" band.
+**This is the most interesting finding in the section, and it is the reason 2.3 exists as well
+as 2.2.**
 
-**Implication for the report:** our models will likely land only modestly above the 33.4%
-baseline, and rating will probably rank low in feature importance. That is a legitimate finding,
-not a failure. The honest answer to the first half of the RQ looks like "rating is a poor
-predictor of price tier; structural attributes such as capacity, room type and property group
-carry more of the signal." The rubric rewards explaining *why* a model behaves as it does, so a
-weak-but-well-explained result scores better than an inflated one. Please do not write the
-discussion as though we expect a strong price-rating link.
+Taken alone, each variable looks weak. Spearman price~rating is only **0.0921**, and
+price~distance only **-0.0484**. Median price by CBD band is not even monotonic (inner $253.00,
+middle $219.50, outer $247.50), probably because coastal and peninsula holiday rentals sit in the
+"outer" band. On correlation evidence alone you would conclude price is barely predictable.
+
+The models say otherwise. Untuned, on the held-out test set:
+
+| Model | Accuracy | Macro-F1 | Accuracy gain over baseline |
+|---|---|---|---|
+| Majority-class baseline (0R) | 0.3337 | 0.1668 | - |
+| KNN (default k=5) | 0.6250 | 0.6232 | **+0.2913** |
+| Decision Tree (default, unpruned) | 0.5966 | 0.5969 | **+0.2629** |
+
+Both roughly **double** the baseline before any tuning.
+
+**Why this matters for the RQ:** individually weak predictors can be jointly informative.
+Correlation measures variables two at a time, so it could not have revealed this; only a model
+using all 13 feature columns at once could. That contrast between 2.2 and 2.3 is a genuine
+insight to make in the discussion, not a contradiction to paper over.
+
+**Nuance to preserve:** none of this rescues *rating* as a predictor. The joint signal most
+likely comes from the structural features (capacity, bedrooms, room type, distance). The
+feature-importance results in 3.4/4.4 will show which, and the honest reading is probably still
+"perceived value is weakly related to price; physical attributes drive it." Do not claim the
+models prove a strong price-rating link.
+
+**Correction note:** an earlier version of this file predicted the models would land only
+modestly above baseline. That prediction was wrong, as the table above shows. Use these numbers.
 
 ---
 
