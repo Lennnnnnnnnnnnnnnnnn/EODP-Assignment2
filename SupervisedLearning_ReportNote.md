@@ -111,9 +111,12 @@ missingness is structural, and filling with the median **within each `room_type`
 sense than one global median. The spec actually names this exact approach in its preprocessing
 examples ("justify your approach with reference to `room_type`").
 
-### Decision 6: Kept both `accommodates` and `bedrooms` even though they correlate at 0.8526
+### Decision 6: Kept both `accommodates` and `bedrooms` even though they correlate at 0.8643
 
-Spearman between the two is 0.8526, and spec 2.2 does suggest you might "drop one of two strongly
+Spearman between the two is 0.8643 (Len's 2.2 table, n = 14,058, the rows where both are
+present). I originally measured 0.8526 on the wider rated subset before dropping unpriced rows,
+so use Len's figure everywhere since his is computed on the same listings we model on. Spec 2.2
+does suggest you might "drop one of two strongly
 related predictors before modelling". But that rule exists for linear models, where two nearly
 identical columns make the coefficients unstable. Trees and KNN don't fit coefficients, so the
 problem doesn't transfer.
@@ -289,14 +292,35 @@ while a one-hot column has one. Rating is continuous too (151 distinct values) a
 reaches 0.0370, so the conclusion holds, but the ranking between continuous and binary features
 isn't a like-for-like comparison.
 
+**Cross-check against Len's 2.2 results.** His NMI against price ranks the same predictors on
+the same 16,375 listings, by a completely different method:
+
+| Len's NMI with price | | My tree's Gini importance | |
+|---|---|---|---|
+| room_type | 0.2246 | accommodates | 0.4774 |
+| accommodates | 0.1873 | room_type_Entire home/apt | 0.1819 |
+| bedrooms | 0.1746 | bedrooms | 0.1713 |
+| property_group | 0.0708 | distance_from_cbd_km | 0.0844 |
+| distance_from_cbd_km | 0.0214 | review_scores_rating | 0.0370 |
+| review_scores_rating | 0.0074 | | |
+
+Same top three and same bottom, from a filter method and an embedded method that share no
+machinery. The one difference is `room_type` ranking first by NMI but second by Gini, which is
+the continuous-feature bias above: NMI treats `room_type` as a whole 4-level variable while the
+tree splits its importance across four separate one-hot columns.
+
 ---
 
 ## 5. Why 2.2 and 2.3 give different pictures
 
-Looked at one pair at a time, nothing predicts price. Spearman price~rating is 0.0921.
-price~distance is -0.0484. Median price by CBD band isn't even monotonic (inner $253.00, middle
-$219.50, outer $247.50), probably because coastal and peninsula holiday rentals land in the
-"outer" band. On correlation evidence alone you'd conclude price is close to unpredictable.
+Looked at one pair at a time, nothing predicts price well. On the 16,375 listings we model,
+Spearman price~rating is 0.0921 and price~distance is only -0.0308. By NMI, rating sits last of
+all six predictors at 0.0074.
+
+(Sabir's 2.1 output quotes price~distance as -0.0484 and gives median price by CBD band as inner
+$253.00, middle $219.50, outer $247.50. Those are computed on the full 25,728 listings, not our
+modelling subset, so don't mix them with the numbers above. Say which population each belongs
+to if both appear in the report.)
 
 But both models get to roughly double the baseline. Individually weak predictors turned out to be
 jointly informative, and correlation structurally cannot show that because it only ever looks at
