@@ -113,3 +113,65 @@ for col in ['pearson_r', 'spearman_rho', 'NMI']:
     m = results.pivot(index='var1', columns='var2', values=col)
     print(f"\n{col} matrix:")
     print(m.reindex(index=list(VARS)[:-1], columns=list(VARS)[1:]).round(4).to_string())
+
+
+# ---- Figure: Spearman + NMI heatmaps (lower triangle, values in cells) ----
+import os
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap, Normalize, to_rgb
+from matplotlib.cm import ScalarMappable
+from matplotlib.patches import Rectangle
+
+LABELS = {'price': 'Price', 'review_scores_rating': 'Rating', 'distance_from_cbd_km': 'Distance to CBD',
+          'accommodates': 'Accommodates', 'bedrooms': 'Bedrooms', 'room_type': 'Room type',
+          'property_group': 'Property group'}
+INK, MUTED, SURFACE, NA_FILL = '#1f1f1e', '#6b6b67', '#fcfcfb', '#f0efec'
+SEQ = LinearSegmentedColormap.from_list('seq_blue', ['#cde2fb', '#86b6ef', '#3987e5', '#1c5cab', '#0d366b'])
+DIV = LinearSegmentedColormap.from_list('div_blue_red', ['#1c5cab', '#86b6ef', NA_FILL, '#f0a3a2', '#b83a39'])
+
+def full_matrix(col):
+    """Symmetric matrix of one measure from the pairwise results table."""
+    m = pd.DataFrame(np.nan, index=list(VARS), columns=list(VARS))
+    for _, r in results.iterrows():
+        m.loc[r['var1'], r['var2']] = m.loc[r['var2'], r['var1']] = r[col]
+    return m
+
+def text_colour(rgb):
+    """Dark ink on light cells, white on dark cells (relative luminance)."""
+    lum = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
+    return INK if lum > 0.45 else 'white'
+
+def heatmap(ax, col, cmap, norm, title):
+    m, names = full_matrix(col), list(VARS)
+    rows, cols = names[1:], names[:-1]
+    for i, rv in enumerate(rows):
+        for j, cv in enumerate(cols[:i + 1]):
+            val = m.loc[rv, cv]
+            fill = NA_FILL if np.isnan(val) else cmap(norm(val))
+            ax.add_patch(Rectangle((j, i), 1, 1, facecolor=fill, edgecolor=SURFACE, lw=2))
+            if np.isnan(val):   # method not applicable (nominal variable)
+                ax.text(j + .5, i + .5, 'n/a', ha='center', va='center', fontsize=9, color=MUTED)
+            else:
+                mark = '†' if 'bedrooms' in (rv, cv) else ''
+                label = f'{val:.2f}'.replace('-0.00', '0.00')   # no negative zero
+                ax.text(j + .5, i + .5, label + mark, ha='center', va='center', fontsize=9,
+                        color=text_colour(to_rgb(fill)))
+    ax.set_xlim(0, len(cols)); ax.set_ylim(len(rows), 0)
+    ax.set_xticks(np.arange(len(cols)) + .5, [LABELS[c] for c in cols], rotation=40, ha='right')
+    ax.set_yticks(np.arange(len(rows)) + .5, [LABELS[r] for r in rows])
+    ax.tick_params(length=0, colors=INK, labelsize=9)
+    for s in ax.spines.values():
+        s.set_visible(False)
+    ax.set_title(title, loc='left', fontsize=11, color=INK)
+    cb = ax.figure.colorbar(ScalarMappable(norm, cmap), ax=ax, fraction=0.046, pad=0.03)
+    cb.outline.set_visible(False); cb.ax.tick_params(labelsize=8, colors=MUTED, length=0)
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5.4), facecolor=SURFACE)
+heatmap(ax1, 'spearman_rho', DIV, Normalize(-1, 1), 'Spearman ρ')
+heatmap(ax2, 'NMI', SEQ, Normalize(0, 0.5), 'NMI (arithmetic mean)')
+fig.text(0.01, 0.01, f"† pairs with bedrooms: n = {results['n'].min():,}; all other pairs: n = {results['n'].max():,}. "
+         "n/a: nominal variable (no order).", fontsize=8.5, color=MUTED)
+fig.tight_layout(rect=(0, 0.04, 1, 1))
+os.makedirs('figures', exist_ok=True)
+fig.savefig('figures/correlation_heatmaps.png', dpi=200, facecolor=SURFACE)
+print("\nsaved figures/correlation_heatmaps.png")
