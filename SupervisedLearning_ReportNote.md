@@ -259,6 +259,47 @@ listings into `mid`. Meanwhile `low` and `high` almost never get mixed up with e
 Those two intervals overlap heavily, so the tree does not beat KNN. The 0.0058 difference sits
 inside the noise, and the two models are statistically indistinguishable on this data.
 
+### How depth 8 was chosen, and how the importances are produced
+
+**Choosing depth 8.** `max_depth` was swept over 12 values (2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25,
+None) with 5-fold stratified cross-validation on the training set only, scoring macro-F1. Depth 8
+won at CV macro-F1 0.6604. The test set played no part in choosing it, otherwise the final
+reported number would not be an honest estimate of unseen performance.
+
+What makes depth 8 the right stopping point is the gap between training and CV score:
+
+| max_depth | train macro-F1 | CV macro-F1 | gap |
+|---|---|---|---|
+| 2 | 0.6370 | 0.6370 | 0.0000 |
+| 8 | 0.6986 | 0.6604 | 0.0382 |
+| 20 | 0.9155 | 0.6077 | 0.3078 |
+| None (reaches 43) | 0.9990 | 0.5962 | 0.4028 |
+
+sklearn's default is `max_depth=None`, which here grows to depth 43 with 4,533 leaves. It scores
+0.9990 on data it has already seen and 0.5962 on data it has not, which is the tree memorising
+individual listings rather than learning the pattern. Depth 8 is where CV peaks while the gap is
+still small. Figure 2 plots the whole curve.
+
+**How the importances are produced.** At every node the tree tries each feature and each
+threshold and picks the split that most reduces Gini impurity, which measures how mixed the three
+bands are within that node. A feature's importance is the total impurity reduction across every
+node that split on it, weighted by how many listings reach those nodes, then normalised so the 13
+values sum to 1. So it measures how much work a column did separating the bands given the other
+columns available, rather than how related it is to price on its own. That is the structural
+difference from mutual information, which scores each feature against price in isolation and
+never accounts for what the other features already explained.
+
+**Cardinality bias.** A feature with more distinct values offers more candidate thresholds, so it
+wins more splits and accumulates more importance. `distance_from_cbd_km` has 15,092 distinct
+values across the 16,375 listings; a one-hot column has 2. With no depth limit the tree keeps
+splitting to isolate individual rows and reaches for the highest-cardinality column to do it,
+which is how an unpruned tree on this data puts distance at 0.4112 and rating at 0.1682. Depth 8
+allows only a few hundred splits, so they go to genuinely predictive features.
+
+The bias shrinks at depth 8 but does not disappear. Rating is also continuous (151 distinct
+values) and still lands at 0.0370, so the conclusion that rating contributes little holds. Len's
+NMI, which has no such bias, puts rating last at 0.0074.
+
 ### Feature influence
 
 Decision tree Gini importances, all 13:
