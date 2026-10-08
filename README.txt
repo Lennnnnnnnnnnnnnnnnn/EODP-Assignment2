@@ -13,7 +13,7 @@ Research question:
   code.ipynb    All code for the report, in one notebook, in report order.
   README.txt    This file.
 
-The notebook is also kept in sync with four standalone scripts used during
+The notebook is also kept in sync with five standalone scripts used during
 development (EODP_A2_Preprocessing.py, EODP_A2_Correlation.py,
 EODP_A2_Supervised.py, EODP_A2_FeatureSelection.py, EODP_A2_PCA&Clustering.py).
 The notebook is the submitted artefact; the scripts are not required to run it.
