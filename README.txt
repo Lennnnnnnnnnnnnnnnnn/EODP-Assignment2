@@ -1,5 +1,5 @@
 COMP20008 ASSIGNMENT 2 - CODE README
-Group W[XX]G[XX]
+Group W05G05
 
 Research question:
   Is the pricing of a property linked to its overall rating, and what kinds of
