@@ -209,7 +209,22 @@ Use the section 3 figure, Spearman 0.8643 at n = 14,058, as the canonical one.
 
 
 -------------------------------------------------------------------------------
-6. DATA SOURCE
+6. GENERATIVE AI DECLARATION
+-------------------------------------------------------------------------------
+
+Generative AI tools (Claude, ChatGPT, Gemini) were used throughout the project
+to assist with writing and debugging code, to explain library behaviour, and to
+help refine the wording of drafts we had written ourselves. Where a particular
+block leaned on it heavily this is also noted inline in the source, for example
+the hierarchical clustering comparison in section 6.
+
+All design and analytical decisions, including variable selection, model choice,
+parameter values and the interpretation of results, were made by the group
+members, and each member can explain the reasoning behind their own section.
+
+
+-------------------------------------------------------------------------------
+7. DATA SOURCE
 -------------------------------------------------------------------------------
 
 Inside Airbnb. (2026). Melbourne, Victoria, Australia.
