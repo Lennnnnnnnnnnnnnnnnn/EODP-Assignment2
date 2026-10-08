@@ -1,8 +1,9 @@
-import numpy as np, pandas as pd, matplotlib.pyplot as plt, seaborn as sns
+import pandas as pd, matplotlib.pyplot as plt
 from sklearn.feature_selection import mutual_info_regression
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from EODP_A2_Preprocessing import df_rating
+from EODP_A2_Supervised import importances
 
 df_copy = df_rating.dropna(subset=['price']).copy()   # rated + priced listings
 
@@ -27,18 +28,12 @@ mi_series = pd.Series(mi_scores, index=X.columns).sort_values(ascending=False)
 print("Top 3 Filter Features (Mutual Information)\n")
 print(mi_series.head(3))
 
+print(mi_series.head(4))
+
 # Decision Tree Regressor
-# Same decision tree technique as Ten
+# Same decision tree technique in EODP_A2_Supervised.py to get feature importances
 
-y = pd.qcut(df_copy['price'], q=3, labels=['low', 'mid', 'high'])
-
-x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-tree_model = DecisionTreeClassifier(random_state=42)
-tree_model.fit(x_train, y_train)
-embedded_importances = pd.Series(tree_model.feature_importances_, index=X.columns).sort_values(ascending=False)
-
-top_3_embedded = embedded_importances.head(3)
+top_3_embedded = importances.sort_values(ascending=False).head(3)
 print("Top 3 Embedded Features (Decision Tree)\n")
 print(top_3_embedded)
 
@@ -50,12 +45,11 @@ hard_case = df_copy[(df_copy['distance_from_cbd_km'] < 1.0) &
                     (df_copy['room_type'] == 'Shared room')][['id', 'price', 'accommodates', 'distance_from_cbd_km', 'review_scores_rating', 'room_type']]
 print(hard_case.head(1))
 
-filter_hard_case = df_copy[(df_copy['accommodates'] >= 6) & 
+second_hard_case = df_copy[(df_copy['accommodates'] >= 6) & 
                       (df_copy['room_type'] == 'Entire home/apt') & 
                       (df_copy['distance_from_cbd_km'] > 35) & 
                       (df_copy['price'] < 200)][['id', 'price', 'accommodates', 'distance_from_cbd_km', 'review_scores_rating', 'room_type']]
-
-print(filter_hard_case.head(1))
+print(second_hard_case.head(1))
 
 # correlation between accommodates and bedrooms
 correlation = df_copy['accommodates'].corr(df_copy['bedrooms'])
@@ -70,18 +64,4 @@ print(f"Median: {median:.2f}")
 print("\nPercentiles:" + percentiles.to_string())
 
 
-# Visualizing the decision tree splits for the top 3 levels #
-# AI was used to help here, the rest is my code #
-plt.figure(figsize=(20, 10))
-plot_tree(
-    tree_model, 
-    feature_names=x_train.columns.to_list(), 
-    class_names=['low', 'mid', 'high'], 
-    filled=True, 
-    rounded=True, 
-    fontsize=10,
-    max_depth=3
-)
-plt.title("Decision Tree Splits (Top 3 Levels)")
-plt.show()
 

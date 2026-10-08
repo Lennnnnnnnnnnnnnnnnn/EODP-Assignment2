@@ -18,33 +18,40 @@ However, there is a suspicion that this is flawed. "accommodates" and "bedrooms"
 With an assumption that the number of rooms is the primary driver of pricing, both "accomodates" and "bedrooms" are most likely linked to pricing and thus will have high MI scores. This results in redundancy, which means a better feature to measure may be hiding at #4.
 
 ### Embedded Method - Decision Trees (Same as Supervised)
-Given Trees are better to handle correlated data, this may clear up the result from before.
-Start by grouping the data into 3 buckets Then start splitting based on the given features, using the best features for the cleanest splitting. 
-*Ten's explanation may be better here*
+The result for the top 3 for Decision Tree is:
+`accommodates`, `room_type_Entire home/apt`, `bedrooms`
 
-The top 3 for this ended up being:
-distance_from_cbd_km:   0.411245
-accommodates            0.234760
-review_scores_rating    0.168187
+This aligns with what is seen in the filter. This may suggest that these are indeed the top three. However, it could fall to the same collinearity trap discussed in the previous part. 
 
-This is quite different from the filter method. Distance_from_cbd_km and review_scores_rating jump out, replacing bedrooms and room_type. This indicates that the distance_from_cbd_km also may have a explanatory effect with pricing. This also may support the idea that bedrooms is redundant.
-These results also disagree with Ten's decision tree, should ask him what he did differently
+*Ten to add how the tree comes up with the top 3*
 
 ### Discrepancies
-The two methods show clear discrepancies in the top 3.
-The first easily explainable one is "bedrooms" being present in filter but absent in embedded. This is most likely due to the correlated effect discussed earlier. Since filter takes each feature independently, it will value "accommodation" and "bedrooms" the same. However, decision trees will look for the best features for splitting in grouping. An observation is since the root node splits on accommodation at the start "accommodation <= 3.5", a hypothesis is that bedrooms is now a useless splitting feature since they are correlated. Thus this explains why MI values this so highly compared to Decision Trees
+The two methods show the same top 3, but not in the correct order.
+MI has
+1. accomodates 
+2. bedrooms
+3. room_type_Entire home/apt
 
-The second discrepancy is that the decision tree valued distance_from_cbd_km and review_scores_rating much more compared to the filter. The first explanation is this is the case, that distance does have a measurable effect on pricing.
-A second more likely scenario is that given distance has much continuous values compared to accomodates and room_type, the decision tree prioritised utilising distance to split much more that other features, resulting in bias. This can also explain ratings, which is in the same scenario.
+while Decision Tree:
+1. accomodates
+2. room_type_Entire home/apt
+3. bedrooms
+
+"bedrooms" is valued much less in the decision tree compared to MI. This is the main difference between the 2.
+Decision trees are less susceptible to collinearity bias as once they split with a feature, any feature that is correlated is essentially useless in splitting the tree, compared to filter methods which take them independently, which could explain why in MI "bedrooms" has a score of 0.313188 compared to the decision tree's 0.1713. 
+
+There are a few possible explanations to this scenario of the same top 3
+1. This is indeed the top 3 features for the data set. This can happen with some data.
+2. There exists some bias present in the dataset that results in these 3 appearing at the top
+3. The discrepancies appear past the top 3. This is seen as #4 for MI is room_type_Private room at 0.272219 compared to Decision Trees' distance_from_cbd_km 0.0844. This also indicates distance may be a variable to investigate
 
 ### Hard Case
 A potential hard case is 
 id  price  accommodates  distance_from_cbd_km  review_scores_rating        room_type
 4274  28207707  177.0             6             37.005183                  4.76  Entire home/apt
 
-The filter method indicates accomodates and the room_type drive pricing in AirBnB. However, this property is unusally cheap for a whole house accomodating 6 people. This disagrees with what is seen in the top 3 of filter. 
-Mutual Information here would indicate that the accommodates would drive this pricing, as 6 people and booking big properties would lead to a hypothetical "discount"
-The decision tree would indicate that its mainly the distance from the cbd and the reviews driving the pricing. As a hypothesis, since its so far away, the journey to get there accounts for low pricing, as its further away from the popular CBD. Also relatively high reviews, most likely an outcome of low pricing.
+The filter method and Decision Trees indicates accomodates and the room_type drive pricing in AirBnB. However, this property is unusally cheap for a whole house accomodating 6 people. This disagrees with what is shown later where the average price per person sits around ($60-70)
+Mutual Information and Decision Trees here would indicate that the accommodates would drive this pricing, as 6 people and booking big properties would lead to a hypothetical "discount". However, other factors may be more likely at play, most likely the distance from the CBD as no one wants to pay big for a property far away from the central entertainment district.
 
 ### Limitations
 - Handling of outlier could be better
@@ -126,7 +133,7 @@ This data seems to show there is a baseline pricing per person of a property ($6
 
 Given 77.2% of the variance is explain by the feature set, this is an ok feature set to use
 
-### Limitations
+### Limitations & Improvements
 - Reviews suffered major ceiling problem - add log scale or normalisation
 - Limiting to 4 means not being able to add reviews to the clustering and PCA
 - Feature set only explains 77% of variance in 2D, more data maybe hiding in other features or limitation of 2D
