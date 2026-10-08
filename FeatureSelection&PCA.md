@@ -23,7 +23,13 @@ The result for the top 3 for Decision Tree is:
 
 This aligns with what is seen in the filter. This may suggest that these are indeed the top three. However, it could fall to the same collinearity trap discussed in the previous part. 
 
-*Ten to add how the tree comes up with the top 3*
+I tuned max_depth over 12 values using 5-fold stratified cross-validation, and only on the training set. Depth 8 won, with a CV macro-F1 of 0.6604.
+
+The default tree with no depth limit grows to depth 43 and 4,533 leaves. It scores 0.9990 on the training data but only 0.5962 in CV, a gap of 0.4028. At depth 8 that gap shrinks to 0.0382.
+
+Feature importance here is the total Gini impurity reduction across every node that splits on that feature, weighted by how many listings reach those nodes, then normalised so everything sums to 1. That means each feature is scored given the other columns. Mutual information is different because it scores each feature on its own.
+
+One bias to be aware of is cardinality. A feature with more distinct values has more candidate thresholds to try, so it gets more chances to find a good split. distance_from_cbd_km has 15,092 distinct values, while a one-hot column has only 2.
 
 ### Discrepancies
 The two methods show the same top 3, but not in the correct order.
