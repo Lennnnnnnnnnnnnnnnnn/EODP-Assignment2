@@ -101,9 +101,10 @@ Section 5, Feature selection (Ben)
 
 Section 6, PCA and clustering (Ben)
   Chooses k using a VAT heatmap and the elbow method, runs K-Means and Ward
-  hierarchical clustering at the same k, compares them with the Adjusted Rand
-  Index and a crosstab, and applies PCA to the same feature set for the
-  component loadings and a 2D projection.
+  hierarchical clustering at the same k, and compares the two by their mean
+  cluster profiles and side by side in PCA space. Applies PCA to the same
+  feature set for the component loadings and two 2D projections, one coloured
+  by cluster and one by price.
 
 
 -------------------------------------------------------------------------------
@@ -174,14 +175,13 @@ Notebook section 6  ->  report 2.5 / 3.5 / 4.5 / 5.5
       The justification for k in 2.5.
   "PCA Loadings" and the explained variance lines
       The component loadings and explained variance ratios in 3.5.
-  figures/K-Means.png
-      The 2D PCA projection coloured by cluster, in 3.5.
+  figures/K-Means.png and figures/PCA_with_price.png
+      The 2D PCA projections, coloured by cluster and by price, in 3.5.
   figures/Dendogram.png and figures/K-means_vs_Hierarchical.png
       The hierarchical clustering figures in 3.5.
-  "ARI" and the crosstab
-      The agreement between K-Means and Ward discussed in 4.5.
-  "Average Property Profile per Cluster"
-      The cluster descriptions in 3.5 and 4.5.
+  "Average Property Profile per Cluster" and the hierarchical equivalent
+      The cluster descriptions in 3.5, and the basis for comparing the two
+      methods' groupings in 4.5.
 
 
 -------------------------------------------------------------------------------
