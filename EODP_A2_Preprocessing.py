@@ -36,7 +36,7 @@ print(f"Spearman price~rating | drop {drop_sp:.4f} | impute {impute_sp:.4f}") # 
 
 
 # ---- STEP 2: distance from Melbourne CBD ----
-CBD_LAT, CBD_LON = -37.8136, 144.9631 # Flinders St, Melbourne CBD
+CBD_LAT, CBD_LON = -37.8136, 144.9631 # Melbourne CBD reference point
 
 def haversine_km(lat, lon, clat=CBD_LAT, clon=CBD_LON):
     """Distance (km) from each listing to the CBD via haversine (accounts for Earth's curvature)."""
