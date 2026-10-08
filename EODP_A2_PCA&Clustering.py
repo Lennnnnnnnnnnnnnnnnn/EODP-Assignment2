@@ -142,13 +142,23 @@ axes[1].set_title('Ward Hierarchical (k=3)')
 plt.tight_layout()
 plt.show()
 
-# 3. Agreement between the two methods
-print("ARI:", adjusted_rand_score(sample['kmeans_cluster'], sample['hierarchical_cluster']))
-print(pd.crosstab(sample['kmeans_cluster'], sample['hierarchical_cluster']))
-
 # Mean profiles of clusters
 cluster_profiles = cluster_data.groupby('kmeans_cluster')[features].mean()
 hierarchical_profiles = cluster_data.groupby('hierarchical_cluster')[features].mean()
+
+fig, ax = plt.subplots(figsize=(10, 6))
+sc = ax.scatter(
+    cluster_data['pca1'], cluster_data['pca2'],
+    c=cluster_data['price'], cmap='viridis',
+    alpha=0.6, s=15, edgecolor='none'
+)
+plt.colorbar(sc, label='price')
+ax.set_xlabel(f'PC1: Size & Cost')
+ax.set_ylabel(f'PC2: Distance from CBD')
+ax.set_title('PCA coloured by price')
+ax.grid(True, alpha=0.3, linestyle='--')
+plt.tight_layout()
+plt.show()
 
 print("\nAverage Property Profile per Cluster")
 print(cluster_profiles)
