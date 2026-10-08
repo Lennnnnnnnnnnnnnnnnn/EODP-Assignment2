@@ -141,15 +141,16 @@ def text_colour(rgb):
     lum = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
     return INK if lum > 0.45 else 'white'
 
+# modified np.isnan(val) to pd.isna(val) to avoid FutureWarning for non-numeric types
 def heatmap(ax, col, cmap, norm, title):
     m, names = full_matrix(col), list(VARS)
     rows, cols = names[1:], names[:-1]
     for i, rv in enumerate(rows):
         for j, cv in enumerate(cols[:i + 1]):
             val = m.loc[rv, cv]
-            fill = NA_FILL if np.isnan(val) else cmap(norm(val))
+            fill = NA_FILL if pd.isna(val) else cmap(norm(val))
             ax.add_patch(Rectangle((j, i), 1, 1, facecolor=fill, edgecolor=SURFACE, lw=2))
-            if np.isnan(val):   # method not applicable (nominal variable)
+            if pd.isna(val):   # method not applicable (nominal variable)
                 ax.text(j + .5, i + .5, 'n/a', ha='center', va='center', fontsize=9, color=MUTED)
             else:
                 mark = '†' if 'bedrooms' in (rv, cv) else ''
