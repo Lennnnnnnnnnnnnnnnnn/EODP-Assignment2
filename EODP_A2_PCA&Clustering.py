@@ -142,6 +142,8 @@ axes[1].set_title('Ward Hierarchical (k=3)')
 plt.tight_layout()
 plt.show()
 
+# This ends any code provided by Generative AI. The following code is written by the author of this notebook. #
+
 # Mean profiles of clusters
 cluster_profiles = cluster_data.groupby('kmeans_cluster')[features].mean()
 hierarchical_profiles = cluster_data.groupby('hierarchical_cluster')[features].mean()
