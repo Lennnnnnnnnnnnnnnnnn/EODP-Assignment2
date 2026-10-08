@@ -145,7 +145,7 @@ print(f"tree train accuracy: {accuracy_score(y_train, tree_default.predict(X_tra
 print("\n" + "="*60)
 print("FEATURE SET CHOICE: keep or drop 'bedrooms'")
 print("="*60)
-print("\nSpearman accommodates~bedrooms = 0.8526 on the rated subset, so the two")
+print("\nSpearman accommodates~bedrooms = 0.8643 (2.2, n = 14,058), so the two")
 print("carry largely the same information. Decided by 5-fold CV on the TRAINING")
 print("set only, leaving the test set untouched for the final reported metric.")
 
