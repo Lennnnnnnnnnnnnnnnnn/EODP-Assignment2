@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import (train_test_split, cross_val_score,
                                      cross_validate, StratifiedKFold)
@@ -33,8 +34,14 @@ print(f"  min {base['price'].min():.2f} | median {base['price'].median():.2f} | 
 print(f"  price == 0: {(base['price'] == 0).sum()} rows")
 print(f"  price > 1000: {(base['price'] > 1000).sum()} rows")
 
-base['price_band'], bins = pd.qcut(base['price'], q=3,
-                                   labels=['low', 'mid', 'high'], retbins=True)
+# Tertile cut points, then applied so that a listing priced exactly on a cut point
+# falls in the upper band: low is below the first edge, mid spans both edges
+# inclusive, high is above the second. pd.qcut is right-closed and would instead put
+# the 2 listings at exactly $194.25 in low.
+_, bins = pd.qcut(base['price'], q=3, retbins=True)
+base['price_band'] = pd.cut(base['price'],
+                            bins=[-np.inf, bins[1] - 1e-9, bins[2], np.inf],
+                            labels=['low', 'mid', 'high'], right=True)
 
 print("\ncut points ($):", [round(b, 2) for b in bins])
 print(f"  low:  {bins[0]:.2f} - {bins[1]:.2f}")
