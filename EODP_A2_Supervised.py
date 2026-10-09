@@ -255,7 +255,8 @@ print("\n" + "="*72)
 print("FINAL MODELS - refit at chosen hyperparameters, scored on held-out test set")
 print("="*72)
 
-# k=25 over the tied k=31: same CV mean, lower fold variance, simpler model.
+# k=25 over k=31: k=31 scores 0.0019 higher in CV (0.6610 vs 0.6591) but with
+# wider fold variance (0.0097 vs 0.0065), so k=25 is the more stable choice.
 CHOSEN_K = 25
 CHOSEN_DEPTH = 8
 
