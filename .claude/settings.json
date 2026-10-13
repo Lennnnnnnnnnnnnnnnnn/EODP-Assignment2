@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Canva__edit-design",
+      "mcp__Canva__read-design",
+      "mcp__Canva__search-designs"
+    ]
+  }
+}
